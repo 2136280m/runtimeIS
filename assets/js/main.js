@@ -4,6 +4,215 @@
 	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 */
 
+$(document).ready(function(){
+
+      $("input").change(function(e) {
+
+        for (var i = 0; i < e.originalEvent.srcElement.files.length; i++) {
+
+          var file = e.originalEvent.srcElement.files[i];
+
+          var img = document.createElement("img");
+          var reader = new FileReader();
+          reader.onloadend = function() {
+             img.src = reader.result;
+          }
+          reader.readAsDataURL(file);
+          $("input").after(img);
+        }
+      });
+
+
+
+      $('#button').on('click', function() {
+        $('#file-input').trigger('click');
+      });
+
+      $('#file-input').change(function () {
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+        // e.target.result should contain the text
+        var text=reader.result;
+
+        //console.log("XML TEXT" + text);
+
+		var gpxDoc = $.parseXML(text); 
+        var $xml = $(gpxDoc);
+
+        // Find Name of Activity
+        var $name = $xml.find('name');
+        console.log($name.text());
+
+        $('#file-title').text($name.text());
+
+
+        var totalTracks = 0;
+        var totalHR = 0;
+        var totalCAD = 0;
+
+        var totalLat = 0;
+        var totalLon = 0;
+		var totalDist = null;
+		var firstLat = null;
+		var firstLon = null;
+        var lastLat = null;
+        var lastLon = null;
+		var firstLatLon = null;
+		var lastLatLon = null;
+		var prevLatLon = null;
+
+        var maxLat = null;
+        var maxLon = null;
+        var minLat = null;
+        var minLon = null;
+
+        var firstDateTime = 0;
+        var lastDateTime = 0;
+		var totalTime = 0;
+		
+		var avgSpeed = 0;
+		
+
+        // Iterate through all track segements and find a route.
+        $xml.find('trkpt').each(function(){
+			// this is where all the reading and writing will happen
+			var lat = $(this).attr("lat");
+			var lon = $(this).attr("lon");
+			var curLatLon = new google.maps.LatLng(lat,lon); 
+			var hr = $(this).find('ns3\\:hr').text();
+
+			var cad = $(this).find('ns3\\:cad').text();
+			var datetime = $(this).find('time').text();
+
+			if (firstLat == null || firstLon == null){
+				firstLat = lat;
+				firstLon = lon;
+				firstLatLon = new google.maps.LatLng(firstLat,firstLon); 
+				prevLatLon = firstLatLon;
+				firstDateTime = new Date(datetime);	
+			}
+			lastDateTime = new Date(datetime);
+			
+			var dist = getDistance(prevLatLon,curLatLon);
+			totalDist += dist;
+			prevLatLon = curLatLon;
+  
+            totalTracks += 1;
+            totalHR += parseInt(hr);
+            totalCAD += parseInt(cad);
+            totalLat += parseFloat(lat);
+            totalLon += parseFloat(lon);
+
+
+            //  Get the figures for the bounding box
+            if (maxLat == null || maxLon == null ||  minLat == null || minLon == null ) {
+              maxLat = lat;
+              minLat = lat;
+
+              maxLon = lon;
+              minLon = lon;
+            }
+
+            maxLat = Math.max(lat, maxLat);
+            minLat = Math.min(lat, minLat);
+
+            maxLon = Math.max(lon, maxLon);
+            minLon = Math.min(lon, minLon);
+
+            if (lastLat == null || lastLon == null) {
+              lastLat = lat;
+              lastLon = lon;
+            } else {
+              var line = new google.maps.Polyline({
+                path: [
+                  new google.maps.LatLng(lastLat, lastLon), 
+                  new google.maps.LatLng(lat, lon)
+                ],
+              strokeColor: "#09b57b",
+              strokeOpacity: 0.4,
+              strokeWeight: 10,
+              map: map
+              });
+
+              lastLon = lon;
+              lastLat = lat;
+			  lastLatLon = new google.maps.LatLng(lastLat,lastLon);
+			}
+        });
+	  
+		//totalDist = google.maps.geometry.spherical.computeDistanceBetween(firstLatLon, lastLatLon).toFixed(2);
+		totalTime = (lastDateTime-firstDateTime)/ 1000 / 60;
+		totalDist = (totalDist/1000);
+		avgSpeed = totalDist/(totalTime/60);
+		var startMarker = new google.maps.Marker({position: firstLatLon,label:"A",map:map,title:"Start"});
+		var endMarker = new google.maps.Marker({position: lastLatLon,label:"B",map:map,title:"End"});
+
+		//marker.setMap(map);
+        //  Add the overview stats to preview run details...
+        $('#activity-overview').text(
+
+        	"Average Heartrate: " + (totalHR/totalTracks).toFixed(2) + 
+
+        	" BPM || Average Cadence: " + (totalCAD/totalTracks).toFixed(2) +
+			
+			" SPM || Total Points Tracked: " + (totalTracks)
+
+        );
+
+
+		$('#totalDist').text(totalDist.toFixed(2) + " km");
+		$('#avgSpeed').text(avgSpeed.toFixed(2) + " km/h");
+		$('#firstTime').text(firstDateTime);
+		$('#lastTime').text(lastDateTime);
+		$('#dateDiff').text(totalTime.toFixed(0) + " mins and " + Math.abs(lastDateTime.getSeconds() - firstDateTime.getSeconds()) + " seconds");
+
+        // Recentre the MAP
+        map.setCenter(new google.maps.LatLng(totalLat/totalTracks, totalLon/totalTracks));
+
+        map.fitBounds(new google.maps.LatLngBounds(new google.maps.LatLng(minLat, minLon),new google.maps.LatLng(maxLat, maxLon)));
+
+        };
+
+        reader.readAsText(this.files[0]);
+        $('#file-title').text(this.files[0].name);
+
+      
+      });
+    });
+
+
+var map;
+      function initMap() {
+        var uluru = {lat:55.873555,lng: -4.292622};
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 13,
+          center: uluru
+        });
+        var marker = new google.maps.Marker({
+          position: uluru,
+          map: map
+        });
+    }
+
+//Generous source =
+//   https://stackoverflow.com/questions/1502590/calculate-distance-between-two-points-in-google-maps-v3
+var rad = function(x) {
+  return x * Math.PI / 180;
+};
+
+var getDistance = function(p1, p2) {
+  var R = 6378137; // Earth’s mean radius in meter
+  var dLat = rad(p2.lat() - p1.lat());
+  var dLong = rad(p2.lng() - p1.lng());
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(rad(p1.lat())) * Math.cos(rad(p2.lat())) *
+    Math.sin(dLong / 2) * Math.sin(dLong / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c;
+  return d; // returns the distance in meter
+};
+
 (function($) {
 
 	skel.breakpoints({

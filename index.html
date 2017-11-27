@@ -64,80 +64,65 @@
 									<p>Faucibus sed lobortis aliquam lorem blandit. Lorem eu nunc metus col. Commodo id in arcu ante lorem ipsum sed accumsan erat praesent faucibus commodo ac mi lacus. Adipiscing mi ac commodo. Vis aliquet tortor ultricies non ante erat nunc integer eu ante ornare amet commetus vestibulum blandit integer in curae ac faucibus integer non. Adipiscing cubilia elementum.</p>
 								</div>-->
 								<div id="map"></div>
-    <script>
-      function initMap() {
-        var uluru = {lat:55.873555,lng: -4.292622};
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 13,
-          center: uluru
-        });
-        var marker = new google.maps.Marker({
-          position: uluru,
-          map: map
-        });
-      }
-    </script>
+  
+
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSuvmVpNiPRgjc54CT9rkwmgYkPDNrLZo&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSuvmVpNiPRgjc54CT9rkwmgYkPDNrLZo&callback=initMap&libraries=geometry">
     </script>
 							</section>
 
 						<!-- Two -->
 							<section id="two">
 								<div class="container">
+
 									<h3>LOAD GPX FILE</h3>
-									<p>Load your GPX file here.</p>
-									<!--
-									<ul class="feature-icons">
-										<li class="fa-code">Write all the code</li>
-										<li class="fa-cubes">Stack small boxes</li>
-										<li class="fa-book">Read books and stuff</li>
-										<li class="fa-coffee">Drink much coffee</li>
-										<li class="fa-bolt">Lightning bolt</li>
-										<li class="fa-users">Shadow clone technique</li>
-									</ul>
-									-->
+
+									<input id="file-input" type="file" name="gpxfile"/>
+
 								</div>
 							</section>
 
 						<!-- Three -->
 							<section id="three">
 								<div class="container">
-									<h3>A Few Accomplishments</h3>
-									<!--
-									<p>Integer eu ante ornare amet commetus vestibulum blandit integer in curae ac faucibus integer non. Adipiscing cubilia elementum integer. Integer eu ante ornare amet commetus.</p>
-									-->
 									<div class="features">
+										<article>
+											<h3>GPX STATS</h3>
+											<h3>File title:</h3>
+											<h4 id="file-title">No File Selected</h4>
+											<span id="activity-overview"></span><br>
+										</article>
 										<article>
 											<a href="#" class="image"><img src="images/pic01.jpg" alt="" /></a>
 											<div class="inner">
 												<h4>DISTANCE</h4>
-												<p>5 KM</p>
+												<p id="totalDist"></p>
 											</div>
 										</article>
 										<article>
 											<a href="#" class="image"><img src="images/pic02.jpg" alt="" /></a>
 											<div class="inner">
 												<h4>SPEED</h4>
-												<p>10 m/p</p>
+												Average speed:<p id="avgSpeed"></p>
 											</div>
 										</article>
 										<article>
 											<a href="#" class="image"><img src="images/pic03.jpg" alt="" /></a>
 											<div class="inner">
 												<h4>TIME</h4>
-												<p>1 HOUR</p>
+												Start Time: <p id="firstTime"></p>
+												End Time: <p id="lastTime"></p>
+												Total runtime: <p id="dateDiff"></p>
 											</div>
 										</article>
 									</div>
-								</div>
 							</section>
 
 						<!-- Four -->
 							<section id="four">
 								<div class="container">
 									<h3>ABOUT US</h3>
-									<p>Runtime is a running app which shows the route you take and gives you
+									<p>Runtime is a running app which visualies the routes you take and gives you
 									the ability to compare your routes and progress with other users.</p>
 									<form method="post" action="#">
 										<div class="row uniform">
