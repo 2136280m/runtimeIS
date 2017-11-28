@@ -135,6 +135,21 @@ $(document).ready(function(){
               map: map
               });
 
+              var myInfoWindow = new google.maps.InfoWindow({
+              	content: '<p>Heart rate:' + parseInt(hr) + ' BPM </p>'	+
+              			'<p>Cadence:' + parseInt(cad) + ' SPM</p>'	+
+          				'<p>Date&Time:' + lastDateTime + '</p>'
+          			});
+
+              google.maps.event.addListener(line, 'mouseover', function() {
+              	myInfoWindow.setPosition(new google.maps.LatLng(lat, lon));
+              	myInfoWindow.open(map);
+              });
+
+              google.maps.event.addListener(line, 'mouseout', function() {
+              	myInfoWindow.close();
+              });
+
               lastLon = lon;
               lastLat = lat;
 			  lastLatLon = new google.maps.LatLng(lastLat,lastLon);
@@ -145,8 +160,25 @@ $(document).ready(function(){
 		totalTime = (lastDateTime-firstDateTime)/ 1000 / 60;
 		totalDist = (totalDist/1000);
 		avgSpeed = totalDist/(totalTime/60);
+
 		var startMarker = new google.maps.Marker({position: firstLatLon,label:"A",map:map,title:"Start"});
 		var endMarker = new google.maps.Marker({position: lastLatLon,label:"B",map:map,title:"End"});
+
+        var startMarkerInfo = new google.maps.InfoWindow({
+          content: '<p> Start of route </p>' +
+          			'<p>Date&Time:' + firstDateTime + '</p>'
+        });
+        var endMarkerInfo = new google.maps.InfoWindow({
+          content: '<p> End of route </p>' +
+          			'<p>Date&Time:' + lastDateTime + '</p>'
+        });
+
+        google.maps.event.addListener(startMarker, 'click', function() {
+          startMarkerInfo.open(map, startMarker);
+        });
+        google.maps.event.addListener(endMarker, 'click', function() {
+          endMarkerInfo.open(map, endMarker);
+        });
 
 		//marker.setMap(map);
         //  Add the overview stats to preview run details...
