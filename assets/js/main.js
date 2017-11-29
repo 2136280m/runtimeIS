@@ -70,8 +70,13 @@ $(document).ready(function(){
         var firstDateTime = 0;
         var lastDateTime = 0;
 		var totalTime = 0;
+		var curTime = 0;
+		var prevTime = 0;
+		var timeSpan = 0;
 		
 		var avgSpeed = 0;
+		var curSpeed = 0;
+		var topSpeed = 0;
 		
 
         // Iterate through all track segements and find a route.
@@ -84,13 +89,15 @@ $(document).ready(function(){
 
 			var cad = $(this).find('ns3\\:cad').text();
 			var datetime = $(this).find('time').text();
+			curTime = new Date(datetime);
 
 			if (firstLat == null || firstLon == null){
 				firstLat = lat;
 				firstLon = lon;
 				firstLatLon = new google.maps.LatLng(firstLat,firstLon); 
 				prevLatLon = firstLatLon;
-				firstDateTime = new Date(datetime);	
+				firstDateTime = new Date(datetime);
+				prevTime = new Date(datetime);
 			}
 			lastDateTime = new Date(datetime);
 			
@@ -103,7 +110,13 @@ $(document).ready(function(){
             totalCAD += parseInt(cad);
             totalLat += parseFloat(lat);
             totalLon += parseFloat(lon);
-
+			
+			timeSpan = (curTime - prevTime)/1000/60;
+			curSpeed =(dist/1000)/(timeSpan/60);
+			if (curSpeed > topSpeed){
+				topSpeed = curSpeed;
+			}
+			prevTime = new Date(datetime);
 
             //  Get the figures for the bounding box
             if (maxLat == null || maxLon == null ||  minLat == null || minLon == null ) {
@@ -156,11 +169,10 @@ $(document).ready(function(){
 			}
         });
 	  
-		//totalDist = google.maps.geometry.spherical.computeDistanceBetween(firstLatLon, lastLatLon).toFixed(2);
 		totalTime = (lastDateTime-firstDateTime)/ 1000 / 60;
 		totalDist = (totalDist/1000);
 		avgSpeed = totalDist/(totalTime/60);
-
+		
 		var startMarker = new google.maps.Marker({position: firstLatLon,label:"A",map:map,title:"Start"});
 		var endMarker = new google.maps.Marker({position: lastLatLon,label:"B",map:map,title:"End"});
 
@@ -195,6 +207,7 @@ $(document).ready(function(){
 
 		$('#totalDist').text(totalDist.toFixed(2) + " km");
 		$('#avgSpeed').text(avgSpeed.toFixed(2) + " km/h");
+		$('#topSpeed').text(topSpeed.toFixed(2) + " km/h");
 		$('#firstTime').text(firstDateTime);
 		$('#lastTime').text(lastDateTime);
 		$('#dateDiff').text(totalTime.toFixed(0) + " mins and " + Math.abs(lastDateTime.getSeconds() - firstDateTime.getSeconds()) + " seconds");
