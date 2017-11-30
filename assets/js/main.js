@@ -26,9 +26,12 @@ $(document).ready(function(){
 
       $('#button').on('click', function() {
         $('#file-input').trigger('click');
+
       });
 
       $('#file-input').change(function () {
+
+      	document.body.scrollTop = document.documentElement.scrollTop = 0;
 
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -97,9 +100,11 @@ $(document).ready(function(){
 				firstLatLon = new google.maps.LatLng(firstLat,firstLon); 
 				prevLatLon = firstLatLon;
 				firstDateTime = new Date(datetime);
+				firstDateTimeString = firstDateTime.toString().substring(0,24);
 				prevTime = new Date(datetime);
 			}
 			lastDateTime = new Date(datetime);
+			lastDateTimeString = lastDateTime.toString().substring(0,24);
 			
 			var dist = getDistance(prevLatLon,curLatLon);
 			totalDist += dist;
@@ -149,9 +154,9 @@ $(document).ready(function(){
               });
 
               var myInfoWindow = new google.maps.InfoWindow({
-              	content: '<p>Heart rate:' + parseInt(hr) + ' BPM </p>'	+
-              			'<p>Cadence:' + parseInt(cad) + ' SPM</p>'	+
-          				'<p>Date&Time:' + lastDateTime + '</p>'
+              	content: '<p>Heart rate: ' + parseInt(hr) + ' BPM </p>'	+
+              			'<p>Cadence: ' + parseInt(cad) + ' SPM</p>'	+
+          				'<p>Time: ' + lastDateTime.toString().substring(16,24) + '</p>'
           			});
 
               google.maps.event.addListener(line, 'mouseover', function() {
@@ -178,11 +183,11 @@ $(document).ready(function(){
 
         var startMarkerInfo = new google.maps.InfoWindow({
           content: '<p> Start of route </p>' +
-          			'<p>Date&Time:' + firstDateTime + '</p>'
+          			'<p>' + firstDateTime.toString().substring(16,24) + '</p>'
         });
         var endMarkerInfo = new google.maps.InfoWindow({
           content: '<p> End of route </p>' +
-          			'<p>Date&Time:' + lastDateTime + '</p>'
+          			'<p>' + lastDateTime.toString().substring(16,24) + '</p>'
         });
 
         google.maps.event.addListener(startMarker, 'click', function() {
@@ -208,8 +213,8 @@ $(document).ready(function(){
 		$('#totalDist').text(totalDist.toFixed(2) + " km");
 		$('#avgSpeed').text(avgSpeed.toFixed(2) + " km/h");
 		$('#topSpeed').text(topSpeed.toFixed(2) + " km/h");
-		$('#firstTime').text(firstDateTime);
-		$('#lastTime').text(lastDateTime);
+		$('#firstTime').text(firstDateTimeString);
+		$('#lastTime').text(lastDateTimeString);
 		$('#dateDiff').text(totalTime.toFixed(0) + " mins and " + Math.abs(lastDateTime.getSeconds() - firstDateTime.getSeconds()) + " seconds");
 
         // Recentre the MAP
