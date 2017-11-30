@@ -26,7 +26,6 @@ $(document).ready(function(){
 
       $('#button').on('click', function() {
         $('#file-input').trigger('click');
-
       });
 
       $('#file-input').change(function () {
@@ -45,10 +44,17 @@ $(document).ready(function(){
 
 			// Find Name of Activity
 			var $name = $xml.find('name');
-			//console.log($name.text());
+			fileNames.push($name.text());
+			if (fileNamesString == ""){
+				fileNamesString += $name.text();
+			} else{
+				fileNamesString += "    •    " + $name.text();
+			}
+			console.log(fileNames.toString());
 
 			$('#file-title').text($name.text());
-
+			$('#fileNames').text(fileNamesString);
+			
 			colourCount++;
 
 			var totalTracks = 0;
@@ -89,9 +95,9 @@ $(document).ready(function(){
 				var lat = $(this).attr("lat");
 				var lon = $(this).attr("lon");
 				var curLatLon = new google.maps.LatLng(lat,lon); 
-				var hr = $(this).find('ns3\\:hr').text();
+				var hr = checkNan(parseInt($(this).find('ns3\\:hr').text()));
 
-				var cad = $(this).find('ns3\\:cad').text();
+				var cad = checkNan(parseInt($(this).find('ns3\\:cad').text()));
 				var datetime = $(this).find('time').text();
 				curTime = new Date(datetime);
 
@@ -155,8 +161,8 @@ $(document).ready(function(){
 				  });
 
 				  var myInfoWindow = new google.maps.InfoWindow({
-					content: '<p>Heart rate: ' + parseInt(hr) + ' BPM </p>'	+
-							'<p>Cadence: ' + parseInt(cad) + ' SPM</p>'	+
+					content: '<p>Heart rate: ' + hr + ' BPM </p>'	+
+							'<p>Cadence: ' + cad + ' SPM</p>'	+
 							'<p>Time: ' + lastDateTime.toString().substring(16,24) + '</p>'
 						});
 
@@ -183,12 +189,16 @@ $(document).ready(function(){
 			var endMarker = new google.maps.Marker({position: lastLatLon,label:"B",map:map,title:"End"});
 
 			var startMarkerInfo = new google.maps.InfoWindow({
-			  content: '<p> Start of route </p>' +
-						'<p>' + firstDateTime.toString().substring(16,24) + '</p>'
+			  content: ' Start of: ' + $name.text() +
+						'<p>Start Time: ' + firstDateTime.toString().substring(16,24) + 
+						'<br>Total Dist: ' + totalDist.toFixed(2) + ' km/h' +
+						'<br>Time Elapsed: ' + totalTime.toFixed(0) + 'm ' + Math.abs(lastDateTime.getSeconds() - firstDateTime.getSeconds()) + 's</p>'
 			});
 			var endMarkerInfo = new google.maps.InfoWindow({
-			  content: '<p> End of route </p>' +
-						'<p>' + lastDateTime.toString().substring(16,24) + '</p>'
+			  content: ' End of: ' + $name.text() +
+						'<p>End Time: ' + lastDateTime.toString().substring(16,24) +
+						'<br>Total Dist: ' + totalDist.toFixed(2) + ' km/h' +
+						'<br>Time Elapsed: ' + totalTime.toFixed(0) + 'm ' + Math.abs(lastDateTime.getSeconds() - firstDateTime.getSeconds()) + 's</p>'
 			});
 
 			google.maps.event.addListener(startMarker, 'click', function() {
@@ -198,15 +208,14 @@ $(document).ready(function(){
 			  endMarkerInfo.open(map, endMarker);
 			});
 
-			//marker.setMap(map);
 			//  Add the overview stats to preview run details...
 			$('#activity-overview').text(
 
-				"Average Heartrate: " + (totalHR/totalTracks).toFixed(2) + 
+				"Average Heartrate: " + checkNan((totalHR/totalTracks).toFixed(2)) + 
 
-				" BPM || Average Cadence: " + (totalCAD/totalTracks).toFixed(2) +
+				" BPM • Average Cadence: " + checkNan((totalCAD/totalTracks).toFixed(2)) +
 				
-				" SPM || Total Points Tracked: " + (totalTracks)
+				" SPM • Total Points Tracked: " + (totalTracks)
 
 			);
 
@@ -264,9 +273,19 @@ var getDistance = function(p1, p2) {
   return d; // returns the distance in meter
 };
 
+var checkNan = function(x) {
+	if (x == "NaN")
+		return "N/A";
+	else
+		return x;
+	
+};
+
 var colours = ["#09b57b","#09aeb7","#6b09b7","#eda81e","#bcc55ca", "#ed1e1e", "#006014", "#baf94d", "#4cd3f9", "#7283e5"];
 var colourCount = -1;
-
+//var gpxFiles = [Files[Name,Tracks[[Lat,Lon,]],StartTime]];
+var fileNames = new Array();
+var fileNamesString = "";
 (function($) {
 
 	skel.breakpoints({

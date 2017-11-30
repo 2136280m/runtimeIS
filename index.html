@@ -26,7 +26,7 @@
 		<!-- Header -->
 			<section id="header">
 				<header>
-					<span class="image avatar"><img src="images/avatar.jpg" href="index.html" alt="Runtime logo"/></span>
+					<span class="image avatar"><a href= "index.html"><img src="images/avatar.jpg" alt="Runtime logo"/></a></span>
 					<h1 id="logo"><a href="index.html">RUNTIME</a></h1>
 					<p>TIME TO RUN</p>
 				</header>
@@ -69,11 +69,13 @@
 						<!-- Two -->
 							<section id="two">
 								<div class="container">
-
-									<h3>LOAD GPX FILE</h3>
-
-									<input id="file-input" type="file" name="gpxfile"/>
-
+									<div class = "features">
+										<article>
+										<h3>LOAD GPX FILE</h3>
+										<input id="file-input" type="file" name="gpxfile"/>
+										<h4><br>Routes displayed:</h4><p id="fileNames"></p>
+									</article>
+									</div>
 								</div>
 							</section>
 
@@ -117,8 +119,7 @@
 							<section id="four">
 								<div class="container">
 									<h3>ABOUT US</h3>
-									<p>Runtime is a running app which visualies the routes you take and gives you stats to analyse your performace.</p>
-									
+									<p>Runtime is a running app which visualies the routes you upload and gives you stats to analyse your performance. You can upload multiple routes to view on the same map.  Try hovering over the routes to see details at each track point!</p>
 									<p>If you have any suggestions or queries, please don't hesitate to contact us.</p>
 									<form method="post" action="#">
 										<div class="row uniform">
